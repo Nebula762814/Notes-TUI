@@ -22,6 +22,7 @@ Built with Python and Textual, this app lets you create, edit, and organize note
 ### Option 1: Homebrew (Recommended)
 
 brew tap Nebula762814/tap
+
 brew install notes-tui
 
 ---
@@ -29,8 +30,11 @@ brew install notes-tui
 ### Option 2: Manual Installation
 
 git clone https://github.com/Nebula762814/Notes-TUI.git
+
 cd Notes-TUI
+
 chmod +x install.sh
+
 ./install.sh
 
 ---
