@@ -69,25 +69,30 @@ Your notes will sync to a private repository as notes.json.
 ## Keybindings
 
 Navigation:
+
 j / k — Move up / down
 Enter — Open note
 Tab — Switch between list and editor
 Esc — Back to menu
 
 Notes:
+
 Ctrl + N — New note
 Ctrl + D — Delete note
 P — Pin / unpin note
 
 Multi-select:
+
 V — Toggle select mode
 Space — Select note
 Ctrl + D — Delete selected
 
 Sync:
+
 Ctrl + U — Push to GitHub
 
 App:
+
 ? — Help menu
 Ctrl + Q — Quit
 
