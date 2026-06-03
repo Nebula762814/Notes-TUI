@@ -1,0 +1,448 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+<title>nebula</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:ital,wght@0,300;0,400;0,500;0,700;1,300&display=swap" rel="stylesheet">
+<style>
+/* ── PALETTE ── */
+:root {
+  --bg:        #0d0d0d;
+  --surface:   #141414;
+  --surface2:  #1a1a1a;
+  --surface3:  #222222;
+  --border:    #2a2a2a;
+  --border2:   #383838;
+  --text:      #e0e0e0;
+  --text-dim:  #888;
+  --text-faint:#555;
+  --accent:    #e0e0e0;
+  --accent-hl: #ffffff;
+  --mono: 'JetBrains Mono', monospace;
+}
+
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth}
+body{
+  background:var(--bg);
+  color:var(--text);
+  font-family:var(--mono);
+  font-size:13px;
+  line-height:1.65;
+  min-height:100vh;
+}
+
+/* ── LAYOUT ── */
+.page{max-width:900px;margin:0 auto;padding:3rem 2rem 5rem}
+
+/* ── HEADER ── */
+.header{
+  display:grid;
+  grid-template-columns:auto 1fr;
+  gap:2.5rem;
+  align-items:start;
+  margin-bottom:3rem;
+  padding-bottom:2.5rem;
+  border-bottom:1px solid var(--border);
+}
+@media(max-width:600px){
+  .header{grid-template-columns:1fr;gap:1.5rem}
+  .photo-wrap{margin:0 auto}
+}
+
+/* Photo */
+.photo-wrap{
+  width:300px;height:300px;
+  border:1px solid var(--border2);
+  border-radius:4px;
+  overflow:hidden;
+  flex-shrink:0;
+  background:var(--surface2);
+  position:relative;
+}
+.photo-wrap img{width:100%;height:100%;object-fit:cover;display:block}
+/* placeholder shown when no image */
+.photo-placeholder{
+  width:100%;height:100%;
+  display:flex;flex-direction:column;
+  align-items:center;justify-content:center;
+  gap:.4rem;
+  color:var(--text-faint);
+  font-size:10px;
+  letter-spacing:.08em;
+  text-align:center;
+  padding:.5rem;
+}
+.photo-placeholder svg{opacity:.3}
+
+/* Identity */
+.identity{display:flex;flex-direction:column;gap:.3rem;padding-top:.2rem}
+.ascii-name{
+  font-size:10px;
+  line-height:1.15;
+  color:var(--text-dim);
+  white-space:pre;
+  margin-bottom:.6rem;
+  overflow-x:auto;
+}
+/* EDIT: your full name */
+.fullname{font-size:1.45rem;font-weight:700;color:var(--accent-hl);letter-spacing:.02em}
+/* EDIT: your role/title */
+.role{font-size:12px;color:var(--text-dim);margin-bottom:.8rem}
+
+.contact-grid{
+  display:flex;flex-direction:column;gap:.25rem;
+}
+.contact-row{
+  display:flex;align-items:center;gap:.6rem;
+  font-size:11px;color:var(--text-dim);
+}
+.contact-row a{color:var(--text-dim);text-decoration:none;transition:color .15s}
+.contact-row a:hover{color:var(--text)}
+.c-label{color:var(--text-faint);min-width:56px}
+
+/* ── SECTION HEADER ── */
+.section{margin-bottom:2.8rem}
+.sec-label{
+  font-size:10px;
+  font-weight:700;
+  letter-spacing:.18em;
+  text-transform:uppercase;
+  color:var(--text-faint);
+  margin-bottom:1.2rem;
+  display:flex;align-items:center;gap:.8rem;
+}
+.sec-label::after{content:'';flex:1;height:1px;background:var(--border)}
+
+/* ── EXPERIENCE CARDS ── */
+.exp-list{display:flex;flex-direction:column;gap:.6rem}
+.exp-card{
+  background:var(--surface);
+  border:1px solid var(--border);
+  border-radius:3px;
+  cursor:pointer;
+  transition:border-color .18s;
+}
+.exp-card:hover{border-color:var(--border2)}
+.exp-card.open{border-color:var(--border2)}
+
+.exp-header{
+  display:flex;align-items:center;justify-content:space-between;
+  padding:.85rem 1.1rem;
+  gap:1rem;
+}
+.exp-left{display:flex;flex-direction:column;gap:.15rem}
+.exp-role{font-size:13px;font-weight:600;color:var(--text)}
+.exp-org{font-size:11px;color:var(--text-dim)}
+.exp-right{display:flex;align-items:center;gap:1rem;flex-shrink:0}
+.exp-period{font-size:10px;color:var(--text-faint);white-space:nowrap}
+.exp-chevron{
+  color:var(--text-faint);
+  font-size:11px;
+  transition:transform .2s;
+  user-select:none;
+}
+.exp-card.open .exp-chevron{transform:rotate(180deg)}
+
+.exp-body{
+  display:none;
+  padding:0 1.1rem 1.1rem;
+  border-top:1px solid var(--border);
+}
+.exp-card.open .exp-body{display:block;padding-top:1rem}
+.exp-desc{font-size:12px;color:var(--text-dim);line-height:1.7;margin-bottom:.8rem}
+/* EDIT: add tags via .tag spans inside .exp-tags */
+.exp-tags{display:flex;flex-wrap:wrap;gap:.4rem;margin-top:.6rem}
+.tag{
+  font-size:10px;letter-spacing:.07em;
+  border:1px solid var(--border2);
+  color:var(--text-faint);
+  padding:.15rem .55rem;
+  border-radius:2px;
+}
+/* images inside experience */
+.exp-images{
+  display:grid;grid-template-columns:repeat(auto-fill,minmax(180px,1fr));
+  gap:.6rem;margin-top:.9rem;
+}
+.exp-images img{
+  width:100%;border-radius:2px;
+  border:1px solid var(--border);
+  object-fit:cover;
+  max-height:140px;
+}
+
+/* ── FOOTER NAV ── */
+.footer-nav{
+  display:flex;align-items:center;justify-content:space-between;
+  flex-wrap:wrap;gap:1rem;
+  padding-top:2rem;
+  border-top:1px solid var(--border);
+}
+.footer-note{font-size:11px;color:var(--text-faint)}
+
+.btn{
+  display:inline-flex;align-items:center;gap:.45rem;
+  font-family:var(--mono);
+  font-size:11px;font-weight:600;
+  letter-spacing:.1em;text-transform:uppercase;
+  padding:.55rem 1.2rem;
+  border-radius:3px;
+  border:1px solid var(--border2);
+  background:var(--surface2);
+  color:var(--text);
+  text-decoration:none;
+  cursor:pointer;
+  transition:background .15s,border-color .15s,color .15s;
+}
+.btn:hover{background:var(--surface3);border-color:var(--text-faint)}
+</style>
+</head>
+<body>
+<div class="page">
+
+  <!-- ══ HEADER ══ -->
+  <div class="header">
+
+    <!-- PHOTO: replace src with your image path, e.g. src="photo.jpg" -->
+    <div class="photo-wrap">
+      <img id="profile-img" src="photo.jpg" alt="Profile photo" style="display:none">
+      <div class="photo-placeholder" id="photo-ph">
+        <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+          <circle cx="12" cy="8" r="4"/><path d="M4 20c0-4 3.6-7 8-7s8 3 8 7"/>
+        </svg>
+        <span>add photo.jpg</span>
+      </div>
+    </div>
+
+    <div class="identity">
+      <!-- ASCII art — swap for any generator output, keep the pre tag -->
+      <pre class="ascii-name">
+███╗   ██╗███████╗██████╗ ██╗   ██╗██╗      █████╗ 
+████╗  ██║██╔════╝██╔══██╗██║   ██║██║     ██╔══██╗
+██╔██╗ ██║█████╗  ██████╔╝██║   ██║██║     ███████║
+██║╚██╗██║██╔══╝  ██╔══██╗██║   ██║██║     ██╔══██║
+██║ ╚████║███████╗██████╔╝╚██████╔╝███████╗██║  ██║
+╚═╝  ╚═══╝╚══════╝╚═════╝  ╚═════╝ ╚══════╝╚═╝  ╚═╝
+                                                   </pre>
+
+      <!-- EDIT: your name -->
+      <div class="fullname">Riddick Burke-Garrison</div>
+      <!-- EDIT: your title/role -->
+      <div class="role">Robotics Programmer · Computer Technician · A/V Technician</div>
+
+      <div class="contact-grid">
+        <!-- EDIT: fill in your contact details. Remove rows you don't want. -->
+        <div class="contact-row">
+          <span class="c-label">email</span>
+          <a href="mailto:riddickburke7@gmail.com.com">riddickburke7@gmail.com</a>
+        </div>
+        <div class="contact-row">
+          <span class="c-label">github</span>
+          <a href="https://github.com/nebula762814" target="_blank">github.com/nebula762814</a>
+        </div>
+        <div class="contact-row">
+          <span class="c-label">location</span>
+          <span>Bonners Ferry, ID</span>
+        </div>
+        <div class="contact-row">
+          <span class="c-label">Phone Number</span>
+          <a href="#" target="_blank">986-205-3253</a>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══ EXPERIENCE ══ -->
+  <div class="section">
+    <div class="sec-label">experience</div>
+    <div class="exp-list">
+
+      <!--
+        ── HOW TO ADD AN EXPERIENCE ENTRY ──
+        Copy one .exp-card block. Fill in:
+          data-role   → job title (used in header)
+          data-org    → organization
+          data-period → date range
+          .exp-desc   → full description (can be multiple paragraphs)
+          .exp-tags   → skill tags (add/remove .tag spans)
+          .exp-images → optional: add <img src="..."> elements; remove the div if unused
+      -->
+
+      <div class="exp-card" onclick="toggleExp(this)">
+        <div class="exp-header">
+          <div class="exp-left">
+            <span class="exp-role">FRC Robotics Programmer And CAD Team</span>
+            <span class="exp-org">Team 2130 Alpha</span>
+          </div>
+          <div class="exp-right">
+            <span class="exp-period"></span>
+            <span class="exp-chevron">▾</span>
+          </div>
+        </div>
+        <div class="exp-body">
+          <div class="exp-desc">
+            <!-- EDIT: full description -->
+            Lead programmer on a competitive FRC robotics team. Responsible for the full software
+            stack on the 2026 season robot including swerve drive, autonomous path planning,
+            and vision-based target tracking. Worked in a six-subsystem command-based architecture
+            with WPILib Java, integrated PhotonVision across dual cameras, and built autonomous
+            routines using PathPlannerLib. Also managed driver-station tooling via Smart Dashboard.
+          </div>
+          <div class="exp-tags">
+          </div>
+          <!-- EDIT: add images or remove this block -->
+          <div class="exp-images"Soundbooth.jpg>
+            <!-- <img src="robot1.jpg" alt="Robot at competition"> -->
+          </div>
+        </div>
+      </div>
+
+      <div class="exp-card" onclick="toggleExp(this)">
+        <div class="exp-header">
+          <div class="exp-left">
+            <span class="exp-role">Audio / Visual Technician</span>
+            <span class="exp-org">Becker Auditorium</span>
+          </div>
+          <div class="exp-right">
+            <span class="exp-period"></span>
+            <span class="exp-chevron">▾</span>
+          </div>
+        </div>
+        <div class="exp-body">
+          <div class="exp-desc">
+            <!-- EDIT -->
+            Operate live sound, lighting, and projection systems for performances and events.
+            Responsible for pre-show setup, live mixing, and post-event teardown. Comfortable
+            with both front-of-house and monitor mixing, and coordinating with production staff.
+          </div>
+          <div class="exp-tags">
+            <span class="tag">Live Sound</span>
+            <span class="tag">Lighting Control</span>
+            <span class="tag">Projection</span>
+          </div>
+          <div class="exp-images">
+            <!-- <img src="av1.jpg" alt="Mixing board"> -->
+          </div>
+        </div>
+      </div>
+
+      <div class="exp-card" onclick="toggleExp(this)">
+        <div class="exp-header">
+          <div class="exp-left">
+            <span class="exp-role">Community Electronics Repair</span>
+            <span class="exp-org">Personal</span>
+          </div>
+          <div class="exp-right">
+            <span class="exp-period"></span>
+            <span class="exp-chevron">▾</span>
+          </div>
+        </div>
+        <div class="exp-body">
+          <div class="exp-desc">
+            <!-- EDIT -->
+            I have repaired many devices among members of the community including Android and Apple smartphones, Apple and Windows personal computers, and many others.
+          </div>
+          <div class="exp-tags">
+          </div>
+          <div class="exp-images">
+            <!-- <img src="homelab.jpg" alt="Homelab setup"> -->
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- ══ SERVICES ══ -->
+  <div class="section">
+    <div class="sec-label">services offered</div>
+    <div class="exp-list">
+
+      <!-- EDIT: same expand pattern as experience cards -->
+      <div class="exp-card" onclick="toggleExp(this)">
+        <div class="exp-header">
+          <div class="exp-left">
+            <span class="exp-role">Electronics Repair
+            <span class="exp-org">Phone · Computer · Misc</span>
+          </div>
+          <div class="exp-right"><span class="exp-chevron">▾</span></div>
+        </div>
+        <div class="exp-body">
+          <div class="exp-desc">
+            <!-- EDIT -->
+           Repair and upgrade devices including smartphones, laptops, desktops, audio systems, gaming consoles. Willing to assist setting up new technology and transfer data between devices. Will work on any brand or operating system. Price: Replacement Part Cost + $20 per hour
+          </div>
+          <div class="exp-tags">
+          </div>
+        </div>
+      </div>
+
+      <div class="exp-card" onclick="toggleExp(this)">
+        <div class="exp-header">
+          <div class="exp-left">
+            <span class="exp-role">Small Scale 3D Printing</span>
+          </div>
+          <div class="exp-right"><span class="exp-chevron">▾</span></div>
+        </div>
+        <div class="exp-body">
+          <div class="exp-desc">
+            <!-- EDIT -->
+            Will 3d print items 200mm x 200mm x 200mm or smaller. Limited to 10 items per order. Will 3d model basic items if needed. Price: $5 per item + $5 modeling fee.
+          </div>
+          <div class="exp-tags">
+          </div>
+        </div>
+      </div>
+
+      <div class="exp-card" onclick="toggleExp(this)">
+        <div class="exp-header">
+          <div class="exp-left">
+            <span class="exp-role">Lights And Sound Theater Technician</span>
+          </div>
+          <div class="exp-right"><span class="exp-chevron">▾</span></div>
+        </div>
+        <div class="exp-body">
+          <div class="exp-desc">
+            <!-- EDIT -->
+            Full production support for live events: front-of-house sound, monitor mixing,
+            stage lighting, and projection. Experienced with setup, operation, and teardown
+            for performances of varying scale. Must provide equipment (Mics, Sound Board, Speakers) Price: $60 Per Hour (Min 1)
+          </div>
+          <div class="exp-tags">
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- ══ FOOTER NAV ══ -->
+  <div class="footer-nav">
+    <!-- EDIT: status / availability note -->
+    <span class="footer-note">available for projects &amp; collaboration</span>
+    <a href="projects.html" class="btn">view projects →</a>
+  </div>
+
+</div><!-- /page -->
+
+<script>
+// Toggle expand on experience/service cards
+function toggleExp(card) {
+  card.classList.toggle('open');
+}
+
+// Show profile image if one is set (replace '' in src with your image path)
+window.addEventListener('DOMContentLoaded', () => {
+  const img = document.getElementById('profile-img');
+  const ph  = document.getElementById('photo-ph');
+  if (img && img.src && !img.src.endsWith('/')) {
+    img.style.display = 'block';
+    ph.style.display  = 'none';
+  }
+});
+</script>
+</body>
+</html>

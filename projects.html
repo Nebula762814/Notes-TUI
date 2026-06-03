@@ -1,0 +1,620 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+<title>nebula // projects</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:ital,wght@0,300;0,400;0,500;0,700;1,300&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg:        #0d0d0d;
+  --surface:   #141414;
+  --surface2:  #1a1a1a;
+  --surface3:  #222222;
+  --border:    #2a2a2a;
+  --border2:   #383838;
+  --text:      #e0e0e0;
+  --text-dim:  #888;
+  --text-faint:#555;
+  --mono: 'JetBrains Mono', monospace;
+}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+html,body{height:100%}
+body{
+  background:var(--bg);
+  color:var(--text);
+  font-family:var(--mono);
+  font-size:13px;
+  line-height:1.65;
+}
+
+/* ── LAYOUT ── */
+.page{max-width:900px;margin:0 auto;padding:3rem 2rem 5rem}
+
+/* ── TOP NAV ── */
+.topnav{
+  display:flex;align-items:center;justify-content:space-between;
+  margin-bottom:2.5rem;
+  padding-bottom:1.5rem;
+  border-bottom:1px solid var(--border);
+}
+.back-btn{
+  display:inline-flex;align-items:center;gap:.4rem;
+  font-size:11px;color:var(--text-faint);text-decoration:none;
+  transition:color .15s;
+  letter-spacing:.05em;
+}
+.back-btn:hover{color:var(--text-dim)}
+.page-heading{font-size:11px;font-weight:700;letter-spacing:.2em;text-transform:uppercase;color:var(--text-faint)}
+
+/* ── SECTION LABEL ── */
+.sec-label{
+  font-size:10px;font-weight:700;letter-spacing:.18em;text-transform:uppercase;
+  color:var(--text-faint);margin-bottom:1.2rem;
+  display:flex;align-items:center;gap:.8rem;
+}
+.sec-label::after{content:'';flex:1;height:1px;background:var(--border)}
+
+/* ── PROJECT GRID ── */
+.projects-grid{
+  display:grid;
+  grid-template-columns:repeat(auto-fill,minmax(260px,1fr));
+  gap:.8rem;
+  margin-bottom:3rem;
+}
+@media(max-width:420px){.projects-grid{grid-template-columns:1fr}}
+
+/* ── PROJECT CARD ── */
+.proj-card{
+  background:var(--surface);
+  border:1px solid var(--border);
+  border-radius:3px;
+  cursor:pointer;
+  transition:border-color .18s,background .15s;
+  display:flex;flex-direction:column;
+  overflow:hidden;
+}
+.proj-card:hover{border-color:var(--border2);background:var(--surface2)}
+
+.proj-thumb{
+  width:100%;height:140px;
+  background:var(--surface2);
+  overflow:hidden;
+  border-bottom:1px solid var(--border);
+  display:flex;align-items:center;justify-content:center;
+  flex-shrink:0;
+}
+.proj-thumb img{width:100%;height:100%;object-fit:cover;display:block}
+.proj-thumb-ph{
+  display:flex;flex-direction:column;align-items:center;gap:.5rem;
+  color:var(--text-faint);font-size:10px;letter-spacing:.08em;
+}
+.proj-thumb-ph svg{opacity:.25}
+
+.proj-body{padding:.9rem 1rem;flex:1;display:flex;flex-direction:column;gap:.4rem}
+.proj-name{font-size:13px;font-weight:700;color:var(--text)}
+.proj-short{font-size:11px;color:var(--text-dim);line-height:1.55}
+.proj-footer{
+  display:flex;align-items:center;justify-content:space-between;
+  margin-top:.6rem;
+}
+.proj-tag{
+  font-size:10px;letter-spacing:.07em;
+  border:1px solid var(--border2);
+  color:var(--text-faint);padding:.12rem .45rem;border-radius:2px;
+}
+.proj-expand-hint{font-size:10px;color:var(--text-faint);letter-spacing:.04em}
+
+/* ── MODAL OVERLAY ── */
+.modal-overlay{
+  display:none;
+  position:fixed;inset:0;
+  background:rgba(0,0,0,.85);
+  z-index:100;
+  overflow-y:auto;
+  padding:2rem 1rem;
+  /* fade in */
+  animation:fadeIn .18s ease;
+}
+.modal-overlay.open{display:flex;align-items:flex-start;justify-content:center}
+@keyframes fadeIn{from{opacity:0}to{opacity:1}}
+
+.modal{
+  background:var(--surface);
+  border:1px solid var(--border2);
+  border-radius:4px;
+  width:100%;max-width:760px;
+  position:relative;
+  animation:slideUp .2s ease;
+}
+@keyframes slideUp{from{transform:translateY(16px);opacity:0}to{transform:none;opacity:1}}
+
+.modal-close{
+  position:absolute;top:1rem;right:1rem;
+  background:none;border:none;color:var(--text-faint);
+  font-size:18px;cursor:pointer;line-height:1;padding:.2rem .4rem;
+  font-family:var(--mono);
+  transition:color .15s;
+  z-index:2;
+}
+.modal-close:hover{color:var(--text)}
+
+/* Modal hero image */
+.modal-hero{
+  width:100%;height:220px;
+  object-fit:cover;
+  border-bottom:1px solid var(--border);
+  display:block;
+}
+.modal-hero[src=""]{display:none}
+
+.modal-content{padding:2rem}
+
+.modal-header{margin-bottom:1.5rem}
+.modal-title{font-size:1.2rem;font-weight:700;color:var(--text);margin-bottom:.3rem}
+.modal-subtitle{font-size:11px;color:var(--text-dim)}
+
+.modal-section{margin-bottom:1.5rem}
+.modal-sec-label{
+  font-size:10px;letter-spacing:.14em;text-transform:uppercase;
+  color:var(--text-faint);margin-bottom:.7rem;
+  border-bottom:1px solid var(--border);padding-bottom:.4rem;
+}
+.modal-body{font-size:12px;color:var(--text-dim);line-height:1.8}
+.modal-body p+p{margin-top:.8rem}
+
+/* Modal image gallery */
+.modal-gallery{
+  display:grid;grid-template-columns:repeat(auto-fill,minmax(180px,1fr));
+  gap:.6rem;margin-top:.6rem;
+}
+.modal-gallery img{
+  width:100%;border-radius:2px;border:1px solid var(--border);
+  object-fit:cover;max-height:150px;
+  cursor:zoom-in;
+  transition:opacity .15s;
+}
+.modal-gallery img:hover{opacity:.85}
+
+/* Tech tags */
+.tag-row{display:flex;flex-wrap:wrap;gap:.4rem}
+.tag{
+  font-size:10px;letter-spacing:.07em;
+  border:1px solid var(--border2);color:var(--text-faint);
+  padding:.15rem .55rem;border-radius:2px;
+}
+
+/* Modal links */
+.modal-links{display:flex;flex-wrap:wrap;gap:.6rem}
+.modal-link{
+  font-size:11px;color:var(--text-dim);text-decoration:none;
+  border:1px solid var(--border2);
+  padding:.35rem .8rem;border-radius:2px;
+  display:inline-flex;align-items:center;gap:.35rem;
+  transition:border-color .15s,color .15s;
+}
+.modal-link:hover{border-color:var(--text-faint);color:var(--text)}
+
+/* ── LIGHTBOX ── */
+.lightbox{
+  display:none;position:fixed;inset:0;
+  background:rgba(0,0,0,.95);z-index:200;
+  align-items:center;justify-content:center;cursor:zoom-out;
+}
+.lightbox.open{display:flex}
+.lightbox img{max-width:90vw;max-height:90vh;object-fit:contain;border-radius:2px}
+
+/* ── FOOTER ── */
+.footer-nav{
+  display:flex;align-items:center;justify-content:space-between;
+  flex-wrap:wrap;gap:1rem;
+  padding-top:2rem;border-top:1px solid var(--border);
+}
+.footer-note{font-size:11px;color:var(--text-faint)}
+.btn{
+  display:inline-flex;align-items:center;gap:.45rem;
+  font-family:var(--mono);font-size:11px;font-weight:600;
+  letter-spacing:.1em;text-transform:uppercase;
+  padding:.55rem 1.2rem;border-radius:3px;
+  border:1px solid var(--border2);background:var(--surface2);
+  color:var(--text);text-decoration:none;cursor:pointer;
+  transition:background .15s,border-color .15s;
+}
+.btn:hover{background:var(--surface3);border-color:var(--text-faint)}
+</style>
+</head>
+<body>
+<div class="page">
+
+  <div class="topnav">
+    <a href="index.html" class="back-btn">← back</a>
+    <span class="page-heading">projects</span>
+  </div>
+
+  <div class="sec-label">selected work</div>
+
+  <!--
+    ══ HOW TO ADD A PROJECT ══
+
+    1. Copy one .proj-card block into .projects-grid
+    2. Fill in the visible card info (thumb image, name, short desc, tag)
+    3. At the bottom of <body>, copy one <div class="modal"> block
+    4. Give the card and its modal matching IDs:
+         card: onclick="openModal('proj-X')"
+         modal: id="proj-X"
+    5. Fill in the modal content: title, description paragraphs, tags, links, images
+    6. For card thumbnail: set <img src="yourimage.jpg"> inside .proj-thumb
+    7. For modal hero:     set src="yourimage.jpg" on .modal-hero
+    8. For gallery images: add <img src="..."> inside .modal-gallery
+
+    REMOVE the placeholder divs and img tags you don't use.
+  -->
+
+  <div class="projects-grid">
+
+    <div class="proj-card" onclick="openModal('proj-nebula')">
+      <div class="proj-thumb">
+        <img src="nebula-thumb.jpg" alt=""> -->
+        <div class="proj-thumb-ph">
+        </div>
+      </div>
+      <div class="proj-body">
+        <div class="proj-name">Personal App Suite</div>
+        <div class="proj-short">Self-hosted web apps tailored to me and made from scratch</div>
+        <div class="proj-footer">
+          <span class="proj-tag">Web</span>
+          <span class="proj-expand-hint">click to expand ↗</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="proj-card" onclick="openModal('proj-Ipod5.5')">
+      <div class="proj-thumb">
+        <img src="Ipod5.JPG" alt=""> -->
+        <div class="proj-thumb-ph">
+        </div>
+      </div>
+      <div class="proj-body">
+        <div class="proj-name">iPod 5.5 Generation</div>
+        <div class="proj-short">Single Use Devices Are Back!</div>
+        <div class="proj-footer">
+          <span class="proj-tag">Hardware</span>
+          <span class="proj-expand-hint">click to expand ↗</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="proj-card" onclick="openModal('proj-reelbook')">
+      <div class="proj-thumb">
+        <div class="proj-thumb-ph">
+          <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.2"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M3 9h18M9 21V9"/></svg>
+          <span>thumbnail</span>
+        </div>
+      </div>
+      <div class="proj-body">
+        <div class="proj-name">Reelbook</div>
+        <div class="proj-short">Standalone sheet music reader with annotation support.</div>
+        <div class="proj-footer">
+          <span class="proj-tag">web</span>
+          <span class="proj-expand-hint">click to expand ↗</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="proj-card" onclick="openModal('proj-dotfiles')">
+      <div class="proj-thumb">
+        <div class="proj-thumb-ph">
+          <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.2"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M3 9h18M9 21V9"/></svg>
+          <span>thumbnail</span>
+        </div>
+      </div>
+      <div class="proj-body">
+        <div class="proj-name">niri dotfiles</div>
+        <div class="proj-short">Full Wayland compositor setup on CachyOS / Arch.</div>
+        <div class="proj-footer">
+          <span class="proj-tag">linux</span>
+          <span class="proj-expand-hint">click to expand ↗</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="proj-card" onclick="openModal('proj-website')">
+      <div class="proj-thumb">
+        <div class="proj-thumb-ph">
+          <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.2"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M3 9h18M9 21V9"/></svg>
+          <span>thumbnail</span>
+        </div>
+      </div>
+      <div class="proj-body">
+        <div class="proj-name">Team 2130 Website</div>
+        <div class="proj-short">Redesigned FRC team site hosted on Netlify.</div>
+        <div class="proj-footer">
+          <span class="proj-tag">web</span>
+          <span class="proj-expand-hint">click to expand ↗</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- ADD MORE CARDS HERE -->
+
+  </div><!-- /projects-grid -->
+
+  <div class="footer-nav">
+    <span class="footer-note">click any project to read more</span>
+    <a href="index.html" class="btn">← back to home</a>
+  </div>
+
+</div><!-- /page -->
+
+<!-- ══════════════════════════════════
+     MODALS — one per project
+     ══════════════════════════════════ -->
+
+<!-- MODAL: nebula suite -->
+<div class="modal-overlay" id="proj-nebula" onclick="overlayClick(event,this)">
+  <div class="modal">
+    <button class="modal-close" onclick="closeModal('proj-nebula')">✕</button>
+
+    <!-- EDIT: hero image. Remove tag if you have no hero. -->
+    <!-- <img class="modal-hero" src="nebula-hero.jpg" alt=""> -->
+
+    <div class="modal-content">
+      <div class="modal-header">
+        <div class="modal-title">nebula suite</div>
+        <!-- EDIT: subtitle / date -->
+        <div class="modal-subtitle">homelab · 2024 – present</div>
+      </div>
+
+      <div class="modal-section">
+        <div class="modal-sec-label">about</div>
+        <div class="modal-body">
+          <!-- EDIT: write as much as you want here. Use <p> tags for paragraphs. -->
+          <p>A cohesive set of self-hosted web applications running on a Mac Mini, all sharing a unified theme and served via Python HTTP servers managed by launchd on tailscale ports</p>
+          <p>A custom music server and streamer pointing at a local library, a TUI-style notes app built with Python and Textual that syncs to GitHub. A dashboard for all my servers and apps that is also a custom broswer startpage</p>
+        </div>
+      </div>
+
+      <!-- EDIT: tech tags -->
+      <div class="modal-section">
+        <div class="modal-sec-label">stack</div>
+        <div class="tag-row">
+          <span class="tag">Python</span>
+          <span class="tag">FastAPI</span>
+          <span class="tag">Textual</span>
+          <span class="tag">HTML/CSS</span>
+          <span class="tag">launchd</span>
+          <span class="tag">Mac Mini</span>
+          <span class="tag">Tailscale</span>
+        </div>
+      </div>
+
+      <!-- EDIT: gallery images. Add <img src="..."> or remove block. -->
+      <div class="modal-section">
+        <div class="modal-sec-label">screenshots</div>
+        <div class="modal-gallery">
+          <!-- <img src="nebula-plex.jpg" alt="Plex frontend" onclick="lightbox(this)"> -->
+          <!-- <img src="nebula-music.jpg" alt="Music server" onclick="lightbox(this)"> -->
+        </div>
+      </div>
+
+      <!-- EDIT: links. Remove anchors you don't need. -->
+      <div class="modal-section">
+        <div class="modal-sec-label">links</div>
+        <div class="modal-links">
+          <a href="#" class="modal-link" target="https://github.com/Nebula762814/Notes-TUI">⌥ Notes-TUI repo</a>
+          <!-- <a href="#" class="modal-link" target="_blank">↗ Live demo</a> -->
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL: 2026main -->
+<div class="modal-overlay" id="proj-Ipod5.5" onclick="overlayClick(event,this)">
+  <div class="modal">
+    <button class="modal-close" onclick="closeModal('proj-2026main')">✕</button>
+    <div class="modal-content">
+      <div class="modal-header">
+        <div class="modal-title">iPod 5.5 Generation</div>
+        <div class="modal-subtitle">robotics · FRC Team 2130 Alpha · 2026 season</div>
+      </div>
+      <div class="modal-section">
+        <div class="modal-sec-label">about</div>
+        <div class="modal-body">
+          <p>Full robot software stack for Team 2130's 2026 FRC competition robot. Built in WPILib Java using a command-based architecture across six subsystems including swerve drive, launcher, and intake.</p>
+          <p>Integrated dual PhotonVision cameras for real-time AprilTag tracking and target alignment. Autonomous routines generated and tuned with PathPlannerLib. Driver-station telemetry and camera streams surfaced via Elastic Dashboard.</p>
+        </div>
+      </div>
+      <div class="modal-section">
+        <div class="modal-sec-label">stack</div>
+        <div class="tag-row">
+          <span class="tag">WPILib Java</span>
+          <span class="tag">PathPlannerLib</span>
+          <span class="tag">PhotonVision</span>
+          <span class="tag">Elastic Dashboard</span>
+          <span class="tag">ADIS16470 IMU</span>
+          <span class="tag">Swerve Drive</span>
+        </div>
+      </div>
+      <div class="modal-section">
+        <div class="modal-sec-label">screenshots</div>
+        <div class="modal-gallery">
+          <!-- <img src="robot-field.jpg" alt="" onclick="lightbox(this)"> -->
+        </div>
+      </div>
+      <div class="modal-section">
+        <div class="modal-sec-label">links</div>
+        <div class="modal-links">
+          <a href="https://github.com/2130-Programmers/2026main" class="modal-link" target="_blank">⌥ GitHub repo</a>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL: Reelbook -->
+<div class="modal-overlay" id="proj-reelbook" onclick="overlayClick(event,this)">
+  <div class="modal">
+    <button class="modal-close" onclick="closeModal('proj-reelbook')">✕</button>
+    <div class="modal-content">
+      <div class="modal-header">
+        <div class="modal-title">Reelbook</div>
+        <div class="modal-subtitle">web · standalone html app · 2024</div>
+      </div>
+      <div class="modal-section">
+        <div class="modal-sec-label">about</div>
+        <div class="modal-body">
+          <p>A single-file HTML sheet music reader designed for live performance use. Supports folder import, page navigation, and annotation tools, all without any server or install required.</p>
+          <p>Built with a dark interface to reduce eye strain on stage, and optimized for touch devices so it can run on a tablet or laptop in a live setting.</p>
+        </div>
+      </div>
+      <div class="modal-section">
+        <div class="modal-sec-label">stack</div>
+        <div class="tag-row">
+          <span class="tag">HTML</span><span class="tag">CSS</span>
+          <span class="tag">Vanilla JS</span><span class="tag">Canvas API</span>
+        </div>
+      </div>
+      <div class="modal-section">
+        <div class="modal-sec-label">screenshots</div>
+        <div class="modal-gallery">
+          <!-- <img src="reelbook-1.jpg" alt="" onclick="lightbox(this)"> -->
+        </div>
+      </div>
+      <div class="modal-section">
+        <div class="modal-sec-label">links</div>
+        <div class="modal-links">
+          <a href="#" class="modal-link" target="_blank">⌥ GitHub repo</a>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL: niri dotfiles -->
+<div class="modal-overlay" id="proj-dotfiles" onclick="overlayClick(event,this)">
+  <div class="modal">
+    <button class="modal-close" onclick="closeModal('proj-dotfiles')">✕</button>
+    <div class="modal-content">
+      <div class="modal-header">
+        <div class="modal-title">niri dotfiles</div>
+        <div class="modal-subtitle">linux · CachyOS · Wayland · ongoing</div>
+      </div>
+      <div class="modal-section">
+        <div class="modal-sec-label">about</div>
+        <div class="modal-body">
+          <p>Full compositor configuration for niri, a scrollable-tiling Wayland compositor, running on CachyOS (Arch-based). Includes complete keybind layout, per-app window rules, and hardware-specific fixes for touchpad, brightness keys, and keyboard backlight.</p>
+          <p>Themed consistently across the entire environment with a dark monospace aesthetic. Dotfiles are version-controlled and maintained as a living configuration.</p>
+        </div>
+      </div>
+      <div class="modal-section">
+        <div class="modal-sec-label">stack</div>
+        <div class="tag-row">
+          <span class="tag">niri</span><span class="tag">Wayland</span>
+          <span class="tag">CachyOS</span><span class="tag">Shell</span>
+          <span class="tag">KDE / GTK theming</span>
+        </div>
+      </div>
+      <div class="modal-section">
+        <div class="modal-sec-label">screenshots</div>
+        <div class="modal-gallery">
+          <!-- <img src="niri-desktop.jpg" alt="" onclick="lightbox(this)"> -->
+        </div>
+      </div>
+      <div class="modal-section">
+        <div class="modal-sec-label">links</div>
+        <div class="modal-links">
+          <a href="#" class="modal-link" target="_blank">⌥ GitHub repo</a>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL: Team 2130 website -->
+<div class="modal-overlay" id="proj-website" onclick="overlayClick(event,this)">
+  <div class="modal">
+    <button class="modal-close" onclick="closeModal('proj-website')">✕</button>
+    <div class="modal-content">
+      <div class="modal-header">
+        <div class="modal-title">Team 2130 Website</div>
+        <div class="modal-subtitle">web · Netlify · 2130-Programmers org</div>
+      </div>
+      <div class="modal-section">
+        <div class="modal-sec-label">about</div>
+        <div class="modal-body">
+          <p>A full redesign of the FRC Team 2130 public website. Hosted on Netlify with continuous deployment from the 2130-Programmers GitHub organization.</p>
+          <p>Focused on a clean, modern layout that works across devices, making it easy for the team to update with season information, sponsor listings, and match results.</p>
+        </div>
+      </div>
+      <div class="modal-section">
+        <div class="modal-sec-label">stack</div>
+        <div class="tag-row">
+          <span class="tag">HTML</span><span class="tag">CSS</span>
+          <span class="tag">JS</span><span class="tag">Netlify</span><span class="tag">GitHub</span>
+        </div>
+      </div>
+      <div class="modal-section">
+        <div class="modal-sec-label">screenshots</div>
+        <div class="modal-gallery">
+          <!-- <img src="website-1.jpg" alt="" onclick="lightbox(this)"> -->
+        </div>
+      </div>
+      <div class="modal-section">
+        <div class="modal-sec-label">links</div>
+        <div class="modal-links">
+          <a href="https://github.com/2130-Programmers/NewWebsite" class="modal-link" target="_blank">⌥ GitHub repo</a>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ══ LIGHTBOX ══ -->
+<div class="lightbox" id="lightbox" onclick="closeLightbox()">
+  <img id="lightbox-img" src="" alt="">
+</div>
+
+<script>
+function openModal(id) {
+  const el = document.getElementById(id);
+  if (el) {
+    el.classList.add('open');
+    document.body.style.overflow = 'hidden';
+  }
+}
+function closeModal(id) {
+  const el = document.getElementById(id);
+  if (el) {
+    el.classList.remove('open');
+    document.body.style.overflow = '';
+  }
+}
+function overlayClick(e, overlay) {
+  if (e.target === overlay) {
+    overlay.classList.remove('open');
+    document.body.style.overflow = '';
+  }
+}
+document.addEventListener('keydown', e => {
+  if (e.key === 'Escape') {
+    document.querySelectorAll('.modal-overlay.open').forEach(m => {
+      m.classList.remove('open');
+    });
+    closeLightbox();
+    document.body.style.overflow = '';
+  }
+});
+
+function lightbox(img) {
+  document.getElementById('lightbox-img').src = img.src;
+  document.getElementById('lightbox').classList.add('open');
+  event.stopPropagation();
+}
+function closeLightbox() {
+  document.getElementById('lightbox').classList.remove('open');
+}
+</script>
+</body>
+</html>
